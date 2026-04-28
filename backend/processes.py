@@ -5,7 +5,7 @@ import psutil
 _cache: dict[int, psutil.Process] = {}
 
 
-def get_processes(limit: int = 20) -> list[dict]:
+def get_processes(limit: int = 25) -> list[dict]:
     current_pids = set()
     try:
         current_pids = {p.pid for p in psutil.process_iter()}
@@ -47,4 +47,16 @@ def get_processes(limit: int = 20) -> list[dict]:
         except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
             _cache.pop(pid, None)
 
-    return sorted(procs, key=lambda x: x["memory_mb"], reverse=True)[:limit]
+    # Instead of returning a list sorted only by one metric, we provide a more
+    # useful combined list for the frontend to sort. This ensures that high-CPU
+    # processes aren't missed just because they have low memory usage.
+    top_mem = sorted(procs, key=lambda x: x["memory_mb"], reverse=True)
+    top_cpu = sorted(procs, key=lambda x: x["cpu_percent"], reverse=True)
+
+    # Combine the lists and remove duplicates using a dictionary,
+    # which preserves the insertion order (top memory processes first).
+    combined = {}
+    for p in top_mem[:limit] + top_cpu[:limit]:
+        combined[p["pid"]] = p
+
+    return list(combined.values())
