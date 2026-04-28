@@ -1,5 +1,6 @@
 const HISTORY_LEN = 30; // 30 ticks × 2 s = 60 s
 const cpuHistory = Array(HISTORY_LEN).fill(null);
+const ramHistory = Array(HISTORY_LEN).fill(null);
 const labels = Array(HISTORY_LEN).fill('');
 
 let chart;
@@ -16,15 +17,28 @@ function initChart() {
     type: 'line',
     data: {
       labels,
-      datasets: [{
-        data: cpuHistory,
-        borderColor: '#4fc3f7',
-        backgroundColor: 'rgba(79,195,247,0.12)',
-        borderWidth: 2,
-        pointRadius: 0,
-        tension: 0.4,
-        fill: true,
-      }],
+      datasets: [
+        {
+          label: 'CPU',
+          data: cpuHistory,
+          borderColor: '#4fc3f7',
+          backgroundColor: 'rgba(79,195,247,0.12)',
+          borderWidth: 2,
+          pointRadius: 0,
+          tension: 0.4,
+          fill: true,
+        },
+        {
+          label: 'RAM',
+          data: ramHistory,
+          borderColor: '#b388ff',
+          backgroundColor: 'rgba(179,136,255,0.15)',
+          borderWidth: 2,
+          pointRadius: 0,
+          tension: 0.4,
+          fill: true,
+        },
+      ],
     },
     options: {
       animation: false,
@@ -36,7 +50,17 @@ function initChart() {
           grid: { color: '#282a33' },
         },
       },
-      plugins: { legend: { display: false } },
+      plugins: {
+        legend: {
+          display: true,
+          align: 'end',
+          labels: {
+            color: '#b0b3b8',
+            boxWidth: 12,
+            font: { size: 12, weight: 500 },
+          },
+        },
+      },
     },
   });
 }
@@ -70,6 +94,8 @@ function renderMetrics(m) {
   const ram = m.memory.percent;
   document.getElementById('ram-value').textContent = ram + '%';
   setBar('ram-bar', ram);
+  ramHistory.push(ram);
+  ramHistory.shift();
   const usedRam = m.memory.total - m.memory.available;
   totalRamMb = m.memory.total / (1024 * 1024);
   document.getElementById('ram-detail').textContent =

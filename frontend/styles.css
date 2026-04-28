@@ -147,9 +147,9 @@ header {
 .load-val  { font-size: 1.3rem; font-weight: 600; color: #d0d2d6; }
 
 /* ── Colour levels ── */
-.level-ok   { background: #45d984; }
-.level-mid  { background: #ffc971; }
-.level-high { background: #ff6363; }
+.level-ok   { background: #2ecc71; }
+.level-mid  { background: #f39c12; }
+.level-high { background: #e74c3c; }
 
 /* ── Process table ── */
 .process-toolbar {
