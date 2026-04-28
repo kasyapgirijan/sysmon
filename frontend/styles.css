@@ -95,6 +95,17 @@ header {
   color: #f0f0f0;
 }
 
+.card-value#uptime-value {
+  font-size: 1.6rem; /* Better fit for "X days, H:M:S" */
+  letter-spacing: -0.02em;
+  font-weight: 600;
+  color: #e0e0e0;
+}
+
+#peak-cpu-time {
+  font-weight: 600;
+}
+
 .card-sub {
   font-size: 0.72rem;
   color: #6a6e7c;

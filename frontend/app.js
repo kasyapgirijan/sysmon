@@ -132,6 +132,21 @@ function renderAlerts(alerts) {
   el.innerHTML = alerts.map(a => `&#9888; ${a.message}`).join('&nbsp;&nbsp;|&nbsp;&nbsp;');
 }
 
+function renderExtraStats(stats) {
+  if (!stats) return;
+
+  document.getElementById('uptime-value').textContent = stats.uptime;
+
+  const peakCpuValueEl = document.getElementById('peak-cpu-value');
+  const peakCpuTimeEl = document.getElementById('peak-cpu-time');
+
+  if (stats.last_peak && stats.last_peak.timestamp) {
+    peakCpuValueEl.textContent = stats.last_peak.percent + '%';
+    const peakTime = new Date(stats.last_peak.timestamp * 1000);
+    peakCpuTimeEl.textContent = 'at ' + peakTime.toLocaleTimeString();
+  }
+}
+
 let ws;
 function connect() {
   const dot = document.getElementById('connStatus');
@@ -140,10 +155,11 @@ function connect() {
   ws.onopen = () => { dot.className = 'conn-dot connected'; };
 
   ws.onmessage = ({ data }) => {
-    const { metrics, processes, alerts } = JSON.parse(data);
+    const { metrics, processes, alerts, extra_stats } = JSON.parse(data);
     renderMetrics(metrics);
     renderProcesses(processes);
     renderAlerts(alerts);
+    renderExtraStats(extra_stats);
   };
 
   ws.onclose = () => {
