@@ -26,9 +26,12 @@ async def _collect() -> dict:
     metrics = await loop.run_in_executor(_pool, get_metrics)
     processes = await loop.run_in_executor(_pool, get_processes)
 
-    # Update peak CPU if a new high is reached
-    if metrics.get("cpu_percent", 0) > LAST_PEAK["percent"]:
-        LAST_PEAK["percent"] = metrics["cpu_percent"]
+    cpu_percent = metrics.get("cpu_percent", 0)
+
+    # On the first run, or if a new peak is reached, update LAST_PEAK.
+    # This ensures the peak value is displayed immediately.
+    if LAST_PEAK["timestamp"] is None or cpu_percent > LAST_PEAK["percent"]:
+        LAST_PEAK["percent"] = cpu_percent
         LAST_PEAK["timestamp"] = time.time()
 
     # Calculate uptime
@@ -60,11 +63,16 @@ async def websocket_endpoint(ws: WebSocket):
     await ws.accept()
     try:
         while True:
-            payload = await _collect()
-            await ws.send_text(json.dumps(payload))
+            try:
+                payload = await _collect()
+                await ws.send_text(json.dumps(payload))
+            except Exception as e:
+                # Log errors but don't disconnect the client
+                print(f"Error during data collection: {e}")
             await asyncio.sleep(2)
     except WebSocketDisconnect:
-        pass
+        # Add a log to show when clients disconnect cleanly
+        print("Client disconnected.")
 
 
 app.mount("/", StaticFiles(directory="../frontend", html=True), name="frontend")
