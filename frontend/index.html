@@ -1,40 +1,79 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
   <title>SysMon Lite</title>
   <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
 </head>
 <body>
 
-<h1>System Monitor</h1>
+<header>
+  <span class="logo">&#9881; SysMon Lite</span>
+  <div id="alertBanner" class="alert-banner hidden"></div>
+  <span id="connStatus" class="conn-dot disconnected" title="WebSocket status"></span>
+</header>
 
-<div id="alertBanner" class="alert-banner hidden"></div>
+<div class="metric-grid">
 
-<div class="cards">
-  <div id="cpu">CPU: --%</div>
-  <div id="ram">RAM: --%</div>
-  <div id="disk">Disk: --%</div>
+  <div class="card">
+    <div class="card-label">CPU</div>
+    <div class="card-value" id="cpu-value">--%</div>
+    <div class="bar-track"><div class="bar-fill" id="cpu-bar"></div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-label">RAM</div>
+    <div class="card-value" id="ram-value">--%</div>
+    <div class="bar-track"><div class="bar-fill" id="ram-bar"></div></div>
+    <div class="card-sub" id="ram-detail"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-label">Disk</div>
+    <div class="card-value" id="disk-value">--%</div>
+    <div class="bar-track"><div class="bar-fill" id="disk-bar"></div></div>
+    <div class="card-sub" id="disk-detail"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-label">Load Avg</div>
+    <div class="load-grid" id="load-grid">
+      <div><span class="load-lbl">1m</span><span class="load-val" id="l1">--</span></div>
+      <div><span class="load-lbl">5m</span><span class="load-val" id="l5">--</span></div>
+      <div><span class="load-lbl">15m</span><span class="load-val" id="l15">--</span></div>
+    </div>
+  </div>
+
 </div>
 
-<input type="text" id="search" placeholder="Search process..." />
+<div class="card chart-card">
+  <div class="card-label">CPU History <span class="chart-hint">(last 60 s)</span></div>
+  <canvas id="cpuChart" height="80"></canvas>
+</div>
 
-<select id="sort">
-  <option value="memory">Sort by Memory</option>
-  <option value="cpu">Sort by CPU</option>
-</select>
-
-<table>
-  <thead>
-    <tr>
-      <th>PID</th>
-      <th>Name</th>
-      <th>User</th>
-      <th>Memory (MB)</th>
-      <th>CPU %</th>
-    </tr>
-  </thead>
-  <tbody id="processTable"></tbody>
-</table>
+<div class="card process-card">
+  <div class="process-toolbar">
+    <span class="card-label">Top Processes</span>
+    <input type="text" id="search" placeholder="Filter by name..." />
+    <select id="sort">
+      <option value="memory">Sort: Memory</option>
+      <option value="cpu">Sort: CPU</option>
+    </select>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>PID</th>
+        <th>Name</th>
+        <th>User</th>
+        <th>Memory</th>
+        <th>CPU %</th>
+      </tr>
+    </thead>
+    <tbody id="processTable"></tbody>
+  </table>
+</div>
 
 <script src="app.js"></script>
 </body>

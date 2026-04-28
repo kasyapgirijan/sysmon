@@ -1,29 +1,50 @@
 import psutil
 
+# Module-level cache keeps Process objects alive between ticks so
+# cpu_percent() measures elapsed time rather than always returning 0.
+_cache: dict[int, psutil.Process] = {}
 
-def get_processes(sort_by="memory", limit=50, search=None):
-    procs = []
 
-    for p in psutil.process_iter(['pid', 'name', 'username']):
+def get_processes(limit: int = 20) -> list[dict]:
+    current_pids = set()
+    try:
+        current_pids = {p.pid for p in psutil.process_iter()}
+    except Exception:
+        pass
+
+    # Register new processes (first cpu_percent call initialises the counter)
+    for pid in current_pids - set(_cache):
         try:
-            mem = p.memory_info().rss / (1024 * 1024)
-            cpu = p.cpu_percent(interval=0.0)
+            p = psutil.Process(pid)
+            p.cpu_percent()  # initialise — always returns 0.0
+            _cache[pid] = p
+        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+            pass
 
-            proc = {
-                "pid": p.pid,
-                "name": p.info['name'],
-                "user": p.info['username'],
-                "memory_mb": round(mem, 2),
+    # Evict dead processes
+    for pid in set(_cache) - current_pids:
+        _cache.pop(pid, None)
+
+    procs = []
+    for pid, p in list(_cache.items()):
+        try:
+            with p.oneshot():
+                name = p.name()
+                try:
+                    user = p.username()
+                except (psutil.AccessDenied, OSError):
+                    user = "?"
+                mem_mb = round(p.memory_info().rss / (1024 * 1024), 2)
+                cpu = round(p.cpu_percent(), 1)
+
+            procs.append({
+                "pid": pid,
+                "name": name,
+                "user": user,
+                "memory_mb": mem_mb,
                 "cpu_percent": cpu,
-            }
+            })
+        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+            _cache.pop(pid, None)
 
-            if search and search.lower() not in proc["name"].lower():
-                continue
-
-            procs.append(proc)
-
-        except Exception:
-            continue
-
-    key = "memory_mb" if sort_by == "memory" else "cpu_percent"
-    return sorted(procs, key=lambda x: x[key], reverse=True)[:limit]
+    return sorted(procs, key=lambda x: x["memory_mb"], reverse=True)[:limit]

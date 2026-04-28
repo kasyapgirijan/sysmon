@@ -1,5 +1,6 @@
 import asyncio
 import json
+from concurrent.futures import ThreadPoolExecutor
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.staticfiles import StaticFiles
@@ -9,6 +10,14 @@ from metrics import get_metrics
 from processes import get_processes
 
 app = FastAPI()
+_pool = ThreadPoolExecutor(max_workers=2)
+
+
+async def _collect() -> dict:
+    loop = asyncio.get_event_loop()
+    metrics = await loop.run_in_executor(_pool, get_metrics)
+    processes = await loop.run_in_executor(_pool, get_processes)
+    return {"metrics": metrics, "processes": processes, "alerts": get_alerts(metrics)}
 
 
 @app.get("/api/metrics")
@@ -17,8 +26,8 @@ def metrics_endpoint():
 
 
 @app.get("/api/processes")
-def processes_endpoint(sort: str = "memory", limit: int = 50, search: str = None):
-    return get_processes(sort_by=sort, limit=limit, search=search)
+def processes_endpoint(limit: int = 20):
+    return get_processes(limit=limit)
 
 
 @app.websocket("/ws")
@@ -26,12 +35,7 @@ async def websocket_endpoint(ws: WebSocket):
     await ws.accept()
     try:
         while True:
-            metrics = get_metrics()
-            payload = {
-                "metrics": metrics,
-                "processes": get_processes(),
-                "alerts": get_alerts(metrics),
-            }
+            payload = await _collect()
             await ws.send_text(json.dumps(payload))
             await asyncio.sleep(2)
     except WebSocketDisconnect:
