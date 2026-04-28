@@ -6,4 +6,5 @@ services:
     container_name: sysmon-lite
     ports:
       - "8882:8882"
+    pid: "host"
     restart: unless-stopped
