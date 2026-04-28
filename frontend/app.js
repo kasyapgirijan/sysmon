@@ -187,7 +187,7 @@ function connect() {
   };
 }
 
-document.getElementById('search').addEventListener('input', () => applyFilter());
+document.getElementById('search').addEventListener('input', applyFilter);
 
 document.querySelectorAll('th.sortable').forEach(th => {
   th.addEventListener('click', () => {
