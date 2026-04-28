@@ -71,10 +71,6 @@
     <div class="process-toolbar">
       <span class="card-label">Top Processes</span>
       <input type="text" id="search" placeholder="Filter by name..." />
-      <select id="sort">
-        <option value="memory">Sort: Memory</option>
-        <option value="cpu">Sort: CPU</option>
-      </select>
     </div>
     <table>
       <thead>
@@ -82,8 +78,8 @@
           <th>PID</th>
           <th>Name</th>
           <th>User</th>
-          <th>Memory</th>
-          <th>CPU %</th>
+          <th class="sortable" data-sort-key="memory_mb">Memory</th>
+          <th class="sortable" data-sort-key="cpu_percent">CPU %</th>
         </tr>
       </thead>
       <tbody id="processTable"></tbody>

@@ -191,6 +191,33 @@ th {
   letter-spacing: 0.05em;
 }
 
+th.sortable {
+  cursor: pointer;
+  position: relative;
+  user-select: none;
+}
+
+th.sortable::after {
+  content: '';
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  border: 4px solid transparent;
+  opacity: 0.4;
+}
+
+th.sortable.sorted-asc::after {
+  border-bottom-color: #e0e0e0;
+  margin-top: -6px;
+  opacity: 1;
+}
+
+th.sortable.sorted-desc::after {
+  border-top-color: #e0e0e0;
+  margin-top: -2px;
+  opacity: 1;
+}
+
 td {
   padding: 8px 8px;
   border-bottom: 1px solid #22242d;

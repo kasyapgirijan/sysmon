@@ -5,6 +5,10 @@ const labels = Array(HISTORY_LEN).fill('');
 let chart;
 let lastProcesses = [];
 let totalRamMb = 0;
+let sortState = {
+  key: 'memory_mb', // Default sort key
+  dir: 'desc',      // Default sort direction
+};
 
 function initChart() {
   const ctx = document.getElementById('cpuChart').getContext('2d');
@@ -89,14 +93,18 @@ function renderProcesses(procs) {
 }
 
 function applyFilter() {
-  const sort = document.getElementById('sort').value;
   const search = document.getElementById('search').value.toLowerCase();
 
   const filtered = lastProcesses
     .filter(p => !search || p.name.toLowerCase().includes(search))
-    .sort((a, b) => sort === 'cpu'
-      ? b.cpu_percent - a.cpu_percent
-      : b.memory_mb - a.memory_mb);
+    .sort((a, b) => {
+      const valA = a[sortState.key];
+      const valB = b[sortState.key];
+      if (sortState.dir === 'asc') {
+        return valA - valB;
+      }
+      return valB - valA;
+    });
 
   const maxCpu = Math.max(...filtered.map(p => p.cpu_percent), 1);
 
@@ -123,6 +131,8 @@ function applyFilter() {
         </td>
       </tr>`;
   }).join('');
+
+  updateSortHeaders();
 }
 
 function renderAlerts(alerts) {
@@ -130,6 +140,15 @@ function renderAlerts(alerts) {
   if (!alerts.length) { el.className = 'alert-banner hidden'; return; }
   el.className = 'alert-banner';
   el.innerHTML = alerts.map(a => `&#9888; ${a.message}`).join('&nbsp;&nbsp;|&nbsp;&nbsp;');
+}
+
+function updateSortHeaders() {
+  document.querySelectorAll('th.sortable').forEach(th => {
+    th.classList.remove('sorted-asc', 'sorted-desc');
+    if (th.dataset.sortKey === sortState.key) {
+      th.classList.add(sortState.dir === 'asc' ? 'sorted-asc' : 'sorted-desc');
+    }
+  });
 }
 
 function renderExtraStats(stats) {
@@ -168,8 +187,21 @@ function connect() {
   };
 }
 
-document.getElementById('search').addEventListener('input', applyFilter);
-document.getElementById('sort').addEventListener('change', applyFilter);
+document.getElementById('search').addEventListener('input', () => applyFilter());
+
+document.querySelectorAll('th.sortable').forEach(th => {
+  th.addEventListener('click', () => {
+    const key = th.dataset.sortKey;
+    if (sortState.key === key) {
+      sortState.dir = sortState.dir === 'desc' ? 'asc' : 'desc';
+    } else {
+      sortState.key = key;
+      sortState.dir = 'desc';
+    }
+    applyFilter();
+  });
+});
 
 initChart();
 connect();
+updateSortHeaders();
