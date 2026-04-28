@@ -1,7 +1,7 @@
 services:
   sysmon:
     build: .
-    container_name: sysmon-lite
+    container_name: system-pulse
     ports:
       - "8882:8882"
     pid: "host"

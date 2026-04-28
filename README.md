@@ -1,6 +1,6 @@
-# Sysmon Lite
+# System Pulse
 
-Sysmon Lite is a lightweight, real-time system monitoring tool designed to track and display running processes, CPU utilization, and memory consumption.
+System Pulse is a lightweight, real-time system monitoring tool designed to track and display running processes, CPU utilization, and memory consumption.
 
 ## Features
 
@@ -16,7 +16,7 @@ Sysmon Lite is a lightweight, real-time system monitoring tool designed to track
 
 ## Getting Started
 
-There are two ways to run Sysmon Lite, depending on your goal:
+There are two ways to run System Pulse, depending on your goal:
 
 1.  **Via Docker:** The easiest method for deployment, especially on a Linux host.
 2.  **Natively:** The **required** method if you want to monitor your host machine on Windows or macOS.

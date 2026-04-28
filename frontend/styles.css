@@ -28,7 +28,7 @@ header {
 .logo {
   font-size: 1.1rem;
   font-weight: 600;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.02em;
   color: #4fc3f7;
   flex: 1;
   background: linear-gradient(45deg, #4fc3f7, #b388ff);
