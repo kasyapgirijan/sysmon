@@ -28,8 +28,8 @@ function initChart() {
         x: { display: false },
         y: {
           min: 0, max: 100,
-          ticks: { color: '#888', callback: v => v + '%' },
-          grid: { color: '#1e1e1e' },
+          ticks: { color: '#818596', callback: v => v + '%' },
+          grid: { color: '#282a33' },
         },
       },
       plugins: { legend: { display: false } },
