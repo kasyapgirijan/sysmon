@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>SysMon Lite</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<h1>System Monitor</h1>
+
+<div id="alertBanner" class="alert-banner hidden"></div>
+
+<div class="cards">
+  <div id="cpu">CPU: --%</div>
+  <div id="ram">RAM: --%</div>
+  <div id="disk">Disk: --%</div>
+</div>
+
+<input type="text" id="search" placeholder="Search process..." />
+
+<select id="sort">
+  <option value="memory">Sort by Memory</option>
+  <option value="cpu">Sort by CPU</option>
+</select>
+
+<table>
+  <thead>
+    <tr>
+      <th>PID</th>
+      <th>Name</th>
+      <th>User</th>
+      <th>Memory (MB)</th>
+      <th>CPU %</th>
+    </tr>
+  </thead>
+  <tbody id="processTable"></tbody>
+</table>
+
+<script src="app.js"></script>
+</body>
+</html>
